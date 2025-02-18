@@ -1,24 +1,12 @@
 syntax = "proto3";
 
-package urlshortener;
-
 service URLShortener {
-  rpc ShortenURL (ShortenRequest) returns (ShortenResponse);
-  rpc GetOriginalURL (GetRequest) returns (GetResponse);
+  rpc Shorten (ShortenRequest) returns (ShortenResponse);
+  rpc Expand (ExpandRequest) returns (ExpandResponse);
 }
 
-message ShortenRequest {
-  string original_url = 1;
-}
+message ShortenRequest { string url = 1; }
+message ShortenResponse { string short_url = 1; }
 
-message ShortenResponse {
-  string short_url = 1;
-}
-
-message GetRequest {
-  string short_url = 1;
-}
-
-message GetResponse {
-  string original_url = 1;
-}
+message ExpandRequest { string short_url = 1; }
+message ExpandResponse { string original_url = 1; }
