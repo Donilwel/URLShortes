@@ -1,7 +1,8 @@
 package test
 
 import (
-	"URLShorter/internal/service"
+	"URLShortes/internal/handler"
+	"URLShortes/internal/service"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -13,12 +14,12 @@ type mockStore struct {
 	urls map[string]string
 }
 
-func (m *mockStore) SaveURL(originalURL, shortCode string) error {
+func (m *mockStore) Save(originalURL, shortCode string) error {
 	m.urls[shortCode] = originalURL
 	return nil
 }
 
-func (m *mockStore) GetURL(shortCode string) (string, error) {
+func (m *mockStore) Get(shortCode string) (string, error) {
 	url, exists := m.urls[shortCode]
 	if !exists {
 		return "", nil
@@ -29,7 +30,7 @@ func (m *mockStore) GetURL(shortCode string) (string, error) {
 func TestCreateShortURL(t *testing.T) {
 	mock := &mockStore{urls: make(map[string]string)}
 	service := service.NewURLService(mock)
-	handler := NewURLHandler(service)
+	hand := handler.NewURLHandler(service)
 
 	request := map[string]string{
 		"original_url": "https://www.example.com",
@@ -41,7 +42,7 @@ func TestCreateShortURL(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler.CreateShortURL(rr, req)
+	hand.CreateShortURL(rr, req)
 
 	if rr.Code != http.StatusOK {
 		t.Errorf("expected status 200, got %d", rr.Code)
@@ -63,7 +64,7 @@ func TestGetOriginalURL(t *testing.T) {
 	mock := &mockStore{urls: make(map[string]string)}
 	mock.urls["abc123"] = "https://www.example.com"
 	service := service.NewURLService(mock)
-	handler := NewURLHandler(service)
+	handler := handler.NewURLHandler(service)
 
 	req, err := http.NewRequest("GET", "/abc123", nil)
 	if err != nil {
